@@ -1,0 +1,18 @@
+# EVENTS - event# - coord
+EVENT 1 reeuwijk_schouwburg  (0,0)
+EVENT 2 utrecht_jaarbeurs    (9,5)
+
+# PARTICIPANTS - part# - coord - event#
+PARTICIPANT 1 (6,5) 2
+PARTICIPANT 2 (7,5) 1
+PARTICIPANT 3 (8,3) 2
+PARTICIPANT 4 (6,1) 1
+
+# DRIVERS - driver# - coord
+#DRIVER 1 (4,3)
+#DRIVER 2 (4,2)
+
+DRIVER 1 (5,2)
+DRIVER 2 (5,2)
+DRIVER 3 (5,2)
+DRIVER 4 (5,2)
