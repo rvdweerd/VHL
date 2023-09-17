@@ -2,6 +2,9 @@
 import openrouteservice as ors
 import folium
 import requests
+from itertools import permutations
+
+
 
 # Replace 'your_api_key_here' with your actual API key
 api_key = "5b3ce3597851110001cf62480eb660ed2b7f422288ffd1bbff0ce7b4"
@@ -35,7 +38,39 @@ def SimpleMatrix():
             print(f"Travel time from {locations[i]} to {locations[j+1]}: {time} seconds")
 
 
-def SimpleRoute(zip1="3572JJ, 38",zip2="3311 PE, 134"):
+def GetCoordinates(zip1="3572 JJ, 38"):
+    params1 = {
+            'api_key': api_key,
+            'text': zip1,
+            'boundary.country': 'NL',  # Specify the country as Netherlands
+            'size': 1,  # Limit the number of results to 1
+        }
+    resp = requests.get(endpoint, params=params1)
+    data=resp.json()
+    coord=data['features'][0]['geometry']['coordinates']
+    return coord
+import time
+def GetRoutingData(coordinates):
+    #coordinates = [coord1,coord2]
+    route = client.directions(
+        coordinates=coordinates,
+        #profile='foot-walking',
+        profile='driving-car',
+        format='geojson',
+        #options={"avoid_features": ["steps"]},
+        validate=False,
+    )
+    time.sleep(0.01)
+    locations = [list(reversed(coord)) 
+                            for coord in 
+                            route['features'][0]['geometry']['coordinates']]
+    duration=route['features'][0]['properties']['summary']['duration'] # in seconds
+    #print("This route takes",duration/60,"minutes")
+    return {'locations':locations, 'duration':int(duration)} #duration is in seconds
+
+def SimpleRoute(m=None, zip1="3572JJ, 38",zip2="3311 PE, 134", color="red"):
+    if m==None:
+        m = folium.Map(location=[52.097, 5.138], tiles='cartodbpositron', zoom_start=10)
     params1 = {
             'api_key': api_key,
             'text': zip1,
@@ -57,7 +92,6 @@ def SimpleRoute(zip1="3572JJ, 38",zip2="3311 PE, 134"):
     coord2=data2['features'][0]['geometry']['coordinates']
 
     # Initialize the OpenRouteService client
-    m = folium.Map(location=[52.097, 5.138], tiles='cartodbpositron', zoom_start=10)
     coordinates = [coord1,coord2]
     route = client.directions(
         coordinates=coordinates,
@@ -67,12 +101,25 @@ def SimpleRoute(zip1="3572JJ, 38",zip2="3311 PE, 134"):
         #options={"avoid_features": ["steps"]},
         validate=False,
     )
-    folium.PolyLine(locations=[list(reversed(coord)) 
+    folium.PolyLine(
+        #color="#FF0000",
+        color=color,
+        weight=5,
+        tooltip="From Boston to San Francisco",
+        locations=[list(reversed(coord)) 
                             for coord in 
                             route['features'][0]['geometry']['coordinates']]).add_to(m)
-    m.save("test.html")
+    folium.Marker([52.0, 5.13], 
+                  popup='London Bridge', 
+                  icon=folium.Icon(prefix='fa',icon='university',color='green')).add_to(m)
+    folium.CircleMarker([51.4183, 0.2206],
+                    radius=30,
+                    popup='East London',
+                    color='red',
+                    ).add_to(m)
     duration=route['features'][0]['properties']['summary']['duration'] # in seconds
     print("This route takes",duration/60,"minutes")
+    return m
 
 def Test():
     # Define the two zip codes (origin and destination)
@@ -120,4 +167,6 @@ def Test():
     print(f"Travel time between {origin_zip_code} and {destination_zip_code} is approximately {travel_time_minutes:.2f} minutes.")
 
 #SimpleMatrix()
-SimpleRoute("lijsterstraat, leeuwarden","paris")
+m = SimpleRoute(zip1="lijsterstraat, leeuwarden",zip2="keizersgracht, amsterdam",color="red")
+m = SimpleRoute(m,zip1="singel 134, dordrecht",zip2="buitenwatersloot 175, delft",color="blue")
+m.save("test.html")

@@ -77,6 +77,102 @@ def GetInput():
 
     # Print the dictionary
     return events_wp, participants_wp, participants_event, drivers_wp, wp2coord, coord2wp, list(all_coords), list(all_wp)
+import re
+def extract_quoted_string(input_string):
+    # Define a regular expression pattern to match strings between double or single quotes
+    pattern = r'"([^"]*)"|\'([^\']*)\''
+    
+    # Use re.findall to find all matching substrings
+    matches = re.findall(pattern, input_string)
+    
+    # Extract and return the first match (if any)
+    if matches:
+        return matches[0][0] or matches[0][1]
+    else:
+        return None
+
+from routeutils import GetCoordinates
+
+def GetInput_addr():
+
+    # Create an empty dictionary to store the coordinates
+    events_wp = {}
+    participants_wp = {}
+    participants_event = {}
+    drivers_wp = {}
+    all_coords = set()
+    all_wp = set()
+    wp2coord = {}
+    coord2wp = {}
+
+    # Open the text file for reading
+    with open('input2.txt', 'r') as file:
+        # Read each line from the file
+        for line in file:
+            if line.startswith('#') or line.startswith('\n'):
+                continue
+            address = extract_quoted_string(line)
+            coord = GetCoordinates(address)
+            line=line.replace(address,"")
+            line = line.replace("''","")
+            parts = line.split()
+            
+            if parts[0] == "EVENT":
+                event_num = int(parts[1])-1
+                #coord = parts[3].replace('(', '').replace(')', '')
+                #coord = coord.split(',')
+                x = float(coord[0])
+                y = float(coord[1])
+                event_coord = (x,y)
+                if event_coord in all_coords:
+                    events_wp[event_num] = coord2wp[event_coord]
+                else:
+                    events_wp[event_num] = len(all_coords)
+                    all_coords.add(event_coord)
+                    wp2coord[len(all_coords)-1] = event_coord
+                    coord2wp[event_coord] = len(all_coords)-1
+                    all_wp.add(len(all_coords)-1)
+                    all_coords.add((x,y))
+
+            if parts[0] == "PARTICIPANT":  
+                part_num = int(parts[1])-1
+                #coord = parts[2].replace('(', '').replace(')', '')
+                #coord = coord.split(',')
+                x = float(coord[0])  
+                y = float(coord[1])  
+                part_coord = (x,y)
+                eventnr = int(parts[3])-1
+                participants_event[part_num] = eventnr
+                if part_coord in all_coords:
+                    participants_wp[part_num] = coord2wp[part_coord]
+                else:  
+                    participants_wp[part_num] = len(all_coords)
+                    all_coords.add(part_coord)
+                    wp2coord[len(all_coords)-1] = part_coord
+                    coord2wp[part_coord] = len(all_coords)-1
+                    all_wp.add(len(all_coords)-1)
+                    all_coords.add((x,y))
+            
+            if parts[0] == "DRIVER":  
+                driver_num = int(parts[1])-1
+                #coord = parts[2].replace('(', '').replace(')', '')
+                #coord = coord.split(',')
+                x = float(coord[0])  
+                y = float(coord[1])  
+                driver_coord = (x,y)
+                if driver_coord in all_coords:
+                    drivers_wp[driver_num] = coord2wp[driver_coord]
+                else:
+                    drivers_wp[driver_num] = len(all_coords)
+                    all_coords.add(driver_coord)
+                    wp2coord[len(all_coords)-1] = driver_coord
+                    coord2wp[driver_coord] = len(all_coords)-1
+                    all_wp.add(len(all_coords)-1)
+                    all_coords.add((x,y))
+
+    # Print the dictionary
+    return events_wp, participants_wp, participants_event, drivers_wp, wp2coord, coord2wp, list(all_coords), list(all_wp)
+
 
 def PrintRoutes(all_coords, wp2coord, routes):
     #routes={}
@@ -113,15 +209,20 @@ def PrintRoutes(all_coords, wp2coord, routes):
     # Show the plot
     plt.show()
 
-def Solve_ASP(events_wp, participants_wp, participants_event, drivers_wp, wp2coord, coord2wp, all_coords, all_wp):
+def Solve_ASP(events_wp, participants_wp, participants_event, drivers_wp, wp2coord, coord2wp, all_coords, all_wp, allroutes):
     asp_program = "#const num_nodes={}.\n".format(len(all_coords))
     asp_program += "node(0..(num_nodes-1)).\n"
-    for n,c in enumerate(all_coords):
-        asp_program += "coord("+str(coord2wp[c])+","+str(c[0])+","+str(c[1])+").\n"
+    #for n,c in enumerate(all_coords):
+        #asp_program += "coord("+str(coord2wp[c])+","+str(c[0])+","+str(c[1])+").\n"
         #asp_program += "edge("+str(n)+","+str(e[0])+").\n"
+    for segment,data in allroutes.items():
+        #pass
+        asp_program += "dist("+str(segment[0])+","+str(segment[1])+","+str(data['duration'])+").\n"
     asp_program += """
-dist(N1,N2,X) :- node(N1), node(N2), N1!=N2, coord(N1,AX,AY), coord(N2,BX,BY), X=(BX-AX)**2+(BY-AY)**2.
-sdist(N1,N2,X) :- dist(N1,N2,X), node(N1), node(N2), N2>N1.\n\n"""
+\n"""
+    #asp_program += """
+#dist(N1,N2,X) :- node(N1), node(N2), N1!=N2, coord(N1,AX,AY), coord(N2,BX,BY), X=(BX-AX)**2+(BY-AY)**2.
+#sdist(N1,N2,X) :- dist(N1,N2,X), node(N1), node(N2), N2>N1.\n\n"""
 
     asp_program += "#const num_events={}.\n".format(len(events_wp))
     asp_program += "event(0..(num_events-1)).\n"
@@ -224,9 +325,20 @@ distances(KM) :- KM = #sum{ K,D : distances(D,_,K), driver(D)}.
     #    print("No answer sets")
     return solutions[0]
 
-events_wp, participants_wp, participants_event, drivers_wp, wp2coord, coord2wp, all_coords, all_wp = GetInput()
+events_wp, participants_wp, participants_event, drivers_wp, wp2coord, coord2wp, all_coords, all_wp = GetInput_addr()
 
-solutions = Solve_ASP(events_wp, participants_wp, participants_event, drivers_wp, wp2coord, coord2wp, all_coords, all_wp)
+from itertools import permutations
+from routeutils import GetRoutingData   
+perm=permutations(all_wp,2)
+allroutes={}
+for wps in list(perm):
+    #print(i)
+    route=(wp2coord[wps[0]],wp2coord[wps[1]])
+    entry=GetRoutingData(route)
+    allroutes[wps]=entry
+    #print(route)
+
+solutions = Solve_ASP(events_wp, participants_wp, participants_event, drivers_wp, wp2coord, coord2wp, all_coords, all_wp, allroutes)
 
 routes={}
 for d, wp in drivers_wp.items():
