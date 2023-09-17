@@ -3,7 +3,7 @@ EVENT 1 reeuwijk_schouwburg  (0,0)
 EVENT 2 utrecht_jaarbeurs    (9,5)
 
 # PARTICIPANTS - part# - coord - event#
-PARTICIPANT 1 (6,5) 2
+PARTICIPANT 1 (6,1) 2
 PARTICIPANT 2 (7,5) 1
 PARTICIPANT 3 (8,3) 2
 PARTICIPANT 4 (6,1) 1

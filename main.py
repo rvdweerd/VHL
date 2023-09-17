@@ -15,7 +15,7 @@ def GetInput():
     coord2wp = {}
 
     # Open the text file for reading
-    with open('input1.txt', 'r') as file:
+    with open('input2.txt', 'r') as file:
         # Read each line from the file
         for line in file:
             if line.startswith('#') or line.startswith('\n'):
@@ -23,7 +23,7 @@ def GetInput():
             parts = line.split()
             
             if parts[0] == "EVENT":
-                event_num = int(parts[1])
+                event_num = int(parts[1])-1
                 coord = parts[3].replace('(', '').replace(')', '')
                 coord = coord.split(',')
                 x = int(coord[0])  
@@ -40,13 +40,13 @@ def GetInput():
                     all_coords.add((x,y))
 
             if parts[0] == "PARTICIPANT":  
-                part_num = int(parts[1])
+                part_num = int(parts[1])-1
                 coord = parts[2].replace('(', '').replace(')', '')
                 coord = coord.split(',')
                 x = int(coord[0])  
                 y = int(coord[1])  
                 part_coord = (x,y)
-                eventnr = int(parts[3])
+                eventnr = int(parts[3])-1
                 participants_event[part_num] = eventnr
                 if part_coord in all_coords:
                     participants_wp[part_num] = coord2wp[part_coord]
@@ -59,7 +59,7 @@ def GetInput():
                     all_coords.add((x,y))
             
             if parts[0] == "DRIVER":  
-                driver_num = int(parts[1])
+                driver_num = int(parts[1])-1
                 coord = parts[2].replace('(', '').replace(')', '')
                 coord = coord.split(',')
                 x = int(coord[0])  
@@ -115,7 +115,7 @@ def PrintRoutes(all_coords, wp2coord, routes):
 
 def Solve_ASP(events_wp, participants_wp, participants_event, drivers_wp, wp2coord, coord2wp, all_coords, all_wp):
     asp_program = "#const num_nodes={}.\n".format(len(all_coords))
-    asp_program += "node(1..num_nodes).\n"
+    asp_program += "node(0..(num_nodes-1)).\n"
     for n,c in enumerate(all_coords):
         asp_program += "coord("+str(coord2wp[c])+","+str(c[0])+","+str(c[1])+").\n"
         #asp_program += "edge("+str(n)+","+str(e[0])+").\n"
@@ -124,17 +124,17 @@ dist(N1,N2,X) :- node(N1), node(N2), N1!=N2, coord(N1,AX,AY), coord(N2,BX,BY), X
 sdist(N1,N2,X) :- dist(N1,N2,X), node(N1), node(N2), N2>N1.\n\n"""
 
     asp_program += "#const num_events={}.\n".format(len(events_wp))
-    asp_program += "event(1..num_events).\n"
+    asp_program += "event(0..(num_events-1)).\n"
     for n,c in events_wp.items():
         asp_program += "event("+str(n)+","+str(c)+").\n"
 
     asp_program += "\n#const num_participants={}.\n".format(len(participants_wp))
-    asp_program += "participant(1..num_participants).\n"
+    asp_program += "participant(0..(num_participants-1)).\n"
     for n,c in participants_wp.items():
-        asp_program += "participant("+str(n)+","+str(c)+","+str(participants_event[n])+").\n"
+        asp_program += "participant("+str(n)+","+str(c)+","+str(participants_event[n]-1)+").\n"
 
     asp_program += "\n#const num_drivers={}.\n".format(len(drivers_wp))
-    asp_program += "driver(1..num_drivers).\n"
+    asp_program += "driver(0..(num_drivers-1)).\n"
     for n,c in drivers_wp.items():
         asp_program += "driver("+str(n)+","+str(c)+").\n"
     
@@ -162,7 +162,7 @@ timestep(1..4).
 
 % ALL PARTICIPANTS MUST BE PICKED UP
 picked_up(N) :- N = #count{ ID : pickup(_,_,ID) }.
-:- picked_up(N), N<4.
+:- picked_up(N), N<num_participants.
 
 % EACH DRIVER CAN ONLY PICK UP A MAXIUM OF 3
 picked_up(D,N) :- N = #count{ ID : pickup(D,_,ID)}, driver(D).
