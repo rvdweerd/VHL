@@ -1,14 +1,16 @@
 # EVENTS - event# - coord
 EVENT 1 aaa 'schouwburgplein, Rotterdam'
-EVENT 2 bbb "kunstmin, dordrecht"
-
+EVENT 2 bbb 'kunstmin, dordrecht'
+#EVENT 3 ccc 'museumplein, amsterdam'
 
 # PARTICIPANTS - part# - coord - event#
 PARTICIPANT 1 "ree 10, reeuwijk" 1
 PARTICIPANT 2 "breda" 2
-
+#PARTICIPANT 3 "zwolle" 3
+#PARTICIPANT 4 "delft" 3
 
 # DRIVERS - driver# - coord
 DRIVER 1 "plein, den haag"
 DRIVER 2 "maastricht"
+#DRIVER 3 "den helder"
 

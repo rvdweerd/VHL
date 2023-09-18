@@ -49,7 +49,7 @@ def GetCoordinates(zip1="3572 JJ, 38"):
     data=resp.json()
     coord=data['features'][0]['geometry']['coordinates']
     return coord
-import time
+
 def GetRoutingData(coordinates):
     #coordinates = [coord1,coord2]
     route = client.directions(
@@ -60,7 +60,7 @@ def GetRoutingData(coordinates):
         #options={"avoid_features": ["steps"]},
         validate=False,
     )
-    time.sleep(0.01)
+    
     locations = [list(reversed(coord)) 
                             for coord in 
                             route['features'][0]['geometry']['coordinates']]
@@ -167,6 +167,6 @@ def Test():
     print(f"Travel time between {origin_zip_code} and {destination_zip_code} is approximately {travel_time_minutes:.2f} minutes.")
 
 #SimpleMatrix()
-m = SimpleRoute(zip1="lijsterstraat, leeuwarden",zip2="keizersgracht, amsterdam",color="red")
-m = SimpleRoute(m,zip1="singel 134, dordrecht",zip2="buitenwatersloot 175, delft",color="blue")
-m.save("test.html")
+#m = SimpleRoute(zip1="lijsterstraat, leeuwarden",zip2="keizersgracht, amsterdam",color="red")
+#m = SimpleRoute(m,zip1="singel 134, dordrecht",zip2="buitenwatersloot 175, delft",color="blue")
+#m.save("test.html")

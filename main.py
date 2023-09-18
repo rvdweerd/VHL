@@ -232,7 +232,7 @@ def Solve_ASP(events_wp, participants_wp, participants_event, drivers_wp, wp2coo
     asp_program += "\n#const num_participants={}.\n".format(len(participants_wp))
     asp_program += "participant(0..(num_participants-1)).\n"
     for n,c in participants_wp.items():
-        asp_program += "participant("+str(n)+","+str(c)+","+str(participants_event[n]-1)+").\n"
+        asp_program += "participant("+str(n)+","+str(c)+","+str(participants_event[n])+").\n"
 
     asp_program += "\n#const num_drivers={}.\n".format(len(drivers_wp))
     asp_program += "driver(0..(num_drivers-1)).\n"
@@ -301,6 +301,7 @@ distances(KM) :- KM = #sum{ K,D : distances(D,_,K), driver(D)}.
     #         solutions.append(solution)
     #         #yield(solution)
     # return solutions
+    print(asp_program)
     control = clingo.Control()
     control.add("base", [], asp_program)
     control.ground([("base", [])])
@@ -331,12 +332,21 @@ from itertools import permutations
 from routeutils import GetRoutingData   
 perm=permutations(all_wp,2)
 allroutes={}
-for wps in list(perm):
+permlist=list(perm)
+num_requests=len(permlist)
+if num_requests > 40:
+    pausetime=60/40
+else:
+    pausetime=0.1
+
+import time
+for wps in permlist:
     #print(i)
     route=(wp2coord[wps[0]],wp2coord[wps[1]])
     entry=GetRoutingData(route)
+    time.sleep(pausetime)
     allroutes[wps]=entry
-    #print(route)
+    print(route)
 
 solutions = Solve_ASP(events_wp, participants_wp, participants_event, drivers_wp, wp2coord, coord2wp, all_coords, all_wp, allroutes)
 
