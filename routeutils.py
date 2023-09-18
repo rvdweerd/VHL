@@ -3,7 +3,7 @@ import openrouteservice as ors
 import folium
 import requests
 from itertools import permutations
-
+colors=['red','blue','orange','green']
 
 
 # Replace 'your_api_key_here' with your actual API key
@@ -46,8 +46,12 @@ def GetCoordinates(zip1="3572 JJ, 38"):
             'size': 1,  # Limit the number of results to 1
         }
     resp = requests.get(endpoint, params=params1)
+    if resp.status_code != 200:
+        # This means something went wrong.
+        assert False
     data=resp.json()
     coord=data['features'][0]['geometry']['coordinates']
+    print(zip1,coord)
     return coord
 
 def GetRoutingData(coordinates):
@@ -170,3 +174,37 @@ def Test():
 #m = SimpleRoute(zip1="lijsterstraat, leeuwarden",zip2="keizersgracht, amsterdam",color="red")
 #m = SimpleRoute(m,zip1="singel 134, dordrecht",zip2="buitenwatersloot 175, delft",color="blue")
 #m.save("test.html")
+
+def AddSegment(m,locations,color="red"):
+    folium.PolyLine(
+        #color="#FF0000",
+        color=color,
+        weight=2,
+        tooltip="text",
+        locations=locations).add_to(m)
+    return m
+
+def BuildRoute(routes, allroutes):
+    m = folium.Map(location=[52.097, 5.138], tiles='cartodbpositron', zoom_start=10)
+    for k,wps in enumerate(routes.values()):
+        col=colors[k]
+        #wps=route[0]
+        for i in range(len(wps)-1):
+            m=AddSegment(m,allroutes[(wps[i],wps[i+1])]['locations'],color=col)
+        
+            # folium.Marker(allroutes[(wps[i],wps[i+1])]['locations'][0], 
+            #                 popup='wp', 
+            #                 icon=folium.Icon(prefix='fa',icon='university',color=col)).add_to(m)
+            folium.CircleMarker(allroutes[(wps[i],wps[i+1])]['locations'][0],
+                            radius=10,
+                            popup='text',
+                            color=col,
+                            fill=True,
+                            fill_color='white' if i==0 else col,
+                            fill_opacity=1 if i==0 else 0.5,
+                            weight=3
+                            ).add_to(m)
+        folium.Marker(allroutes[(wps[-2],wps[-1])]['locations'][-1],
+                      popup='wp', 
+                      icon=folium.Icon(prefix='fa',icon='university',color=col)).add_to(m)
+    return m

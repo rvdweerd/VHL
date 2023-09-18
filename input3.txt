@@ -1,0 +1,17 @@
+# EVENTS - event# - code - address
+EVENT 1 aaa 'schouwburgplein, Rotterdam'
+EVENT 2 bbb 'kunstmin, dordrecht'
+EVENT 3 ccc 'tivoli vredenburg, utrecht'
+
+# PARTICIPANTS - part# - address - event#
+PARTICIPANT 1 "ree 10, reeuwijk" 1
+PARTICIPANT 2 "gouda" 2
+PARTICIPANT 3 "bodegraven" 2
+PARTICIPANT 4 "waddinxveen" 3
+PARTICIPANT 5 "boskoop" 3
+
+# DRIVERS - driver# - address
+DRIVER 1 "reeuwijk-dorp"
+DRIVER 2 "haastrecht"
+DRIVER 3 "zwammerdam"
+
