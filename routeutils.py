@@ -3,8 +3,9 @@ import openrouteservice as ors
 import folium
 import requests
 from itertools import permutations
-colors=['red','blue','orange','green']
-
+colors=['red','blue','orange','green','gray','black','pink','purple']
+#colors=['cadetblue', 'darkpurple', 'gray', 'lightgreen', 'pink', 'orange', 'blue', 'beige', 'darkred', 'red', 'lightred', 'purple', 'green', 'darkblue', 'darkgreen', 'lightblue', 'lightgray', 'black']
+#colors=['#440154', '#5F9EA0', '#301934', '#808080', '#90EE90', '#FFC0CB', '#FFA500', '#0000FF', '#F5F5DC', '#8B0000', '#FF0000', '#FFCCCB', '#800080', '#008000', '#00008B', '#013220', '#000000', ]
 
 # Replace 'your_api_key_here' with your actual API key
 api_key = "5b3ce3597851110001cf62480eb660ed2b7f422288ffd1bbff0ce7b4"
@@ -184,14 +185,26 @@ def AddSegment(m,locations,color="red"):
         locations=locations).add_to(m)
     return m
 
-def BuildRoute(routes, allroutes):
+def BuildRoute(routes, allroutes, wp2coord):
     m = folium.Map(location=[52.097, 5.138], tiles='cartodbpositron', zoom_start=10)
+    driver_distances=[0 for i in range(len(routes))]
     for k,wps in enumerate(routes.values()):
-        col=colors[k]
+        col=colors[k%(len(colors))]
+        if len(wps)<2:
+            folium.CircleMarker([wp2coord[wps[0]][1],wp2coord[wps[0]][0]],
+                            radius=10,
+                            popup='text',
+                            color=col,
+                            fill=True,
+                            fill_color='white',# if i==0 else col,
+                            fill_opacity=1, # if i==0 else 0.5,
+                            weight=3
+                            ).add_to(m)
+            continue
         #wps=route[0]
         for i in range(len(wps)-1):
             m=AddSegment(m,allroutes[(wps[i],wps[i+1])]['locations'],color=col)
-        
+            driver_distances[k] += allroutes[(wps[i],wps[i+1])]['duration']
             # folium.Marker(allroutes[(wps[i],wps[i+1])]['locations'][0], 
             #                 popup='wp', 
             #                 icon=folium.Icon(prefix='fa',icon='university',color=col)).add_to(m)

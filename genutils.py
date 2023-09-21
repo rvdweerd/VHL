@@ -1,6 +1,7 @@
 import re
 import matplotlib.pyplot as plt
 from routeutils import GetCoordinates, colors
+import pickle 
 
 def extract_quoted_string(input_string):
     # Define a regular expression pattern to match strings between double or single quotes
@@ -90,7 +91,7 @@ def GetInput(filename="input2.txt"):
     # Print the dictionary
     return events_wp, participants_wp, participants_event, drivers_wp, wp2coord, coord2wp, list(all_coords), list(all_wp)
 
-def GetInput_addr(filename="input2.txt"):
+def GetInput_addr(filename="input2.txt", cache_data=None):
 
     # Create an empty dictionary to store the coordinates
     events_wp = {}
@@ -110,7 +111,11 @@ def GetInput_addr(filename="input2.txt"):
             if line.startswith('#') or line.startswith('\n'):
                 continue
             address = extract_quoted_string(line)
-            coord = GetCoordinates(address)
+            if address in cache_data['address2coord']:
+                coord = cache_data['address2coord'][address]
+            else:                
+                coord = GetCoordinates(address)
+                cache_data['address2coord'][address] = coord
             line=line.replace(address,"")
             line = line.replace("''","")
             parts = line.split()
@@ -172,6 +177,7 @@ def GetInput_addr(filename="input2.txt"):
                     all_coords.add((x,y))
 
     # Print the dictionary
+    
     return events_wp, participants_wp, participants_event, drivers_wp, wp2coord, coord2wp, list(all_coords), list(all_wp), wp2addr
 
 def PrintRoutes(all_coords, wp2coord, routes):
@@ -208,3 +214,5 @@ def PrintRoutes(all_coords, wp2coord, routes):
 
     # Show the plot
     plt.show()
+
+

@@ -8,7 +8,8 @@ def Solve_ASP(events_wp, participants_wp, participants_event, drivers_wp, wp2coo
         #asp_program += "edge("+str(n)+","+str(e[0])+").\n"
     for segment,data in allroutes.items():
         #pass
-        asp_program += "dist("+str(segment[0])+","+str(segment[1])+","+str(data['duration']//100)+").\n"
+        #asp_program += "dist("+str(segment[0])+","+str(segment[1])+","+str(data['duration']//100)+").\n"
+        asp_program += "dist("+str(segment[0])+","+str(segment[1])+","+str(data['duration'])+").\n"
     asp_program += """
 \n"""
     #asp_program += """
@@ -70,8 +71,7 @@ distances(D,T1,KM) :- driver(D), pickup(D,T1,P1), pickup(D,T2,P2), (T2-T1)==1, p
 max_t(D,T) :- T = #max{ TT : pickup(D,TT,_) }, driver(D).
 distances(D,TMAX,KM) :- max_t(D,TMAX), driver(D), pickup(D,TMAX,P), participant(P,SRC,EVT), event(EVT,TGT), dist(SRC,TGT,KM).
 
-%distances_per_driver(D,KM) :- KM = #sum{ K : distances(D,_,K)}, driver(D).
-distances(KM) :- KM = #sum{ K,D : distances(D,_,K), driver(D)}.
+distances(KM) :- KM = #sum{ K,D,T : distances(D,T,K)}. %, driver(D), timestep(T)}.
 %total_distance(KM) :- KM = #sum{ K,D : distances_per_driver(D,K)}, driver(D).
 
 #minimize {KM : distances(KM)}.
@@ -92,7 +92,7 @@ distances(KM) :- KM = #sum{ K,D : distances(D,_,K), driver(D)}.
     #         solutions.append(solution)
     #         #yield(solution)
     # return solutions
-    #print(asp_program)
+    print(asp_program)
     control = clingo.Control()
     control.add("base", [], asp_program)
     control.ground([("base", [])])

@@ -2,16 +2,24 @@
 EVENT 1 aaa 'schouwburgplein, Rotterdam'
 EVENT 2 bbb 'kunstmin, dordrecht'
 EVENT 3 ccc 'tivoli vredenburg, utrecht'
+EVENT 4 ddd 'paradiso, amsterdam'
 
 # PARTICIPANTS - part# - address - event#
-PARTICIPANT 1 "ree 10, reeuwijk" 1
-PARTICIPANT 2 "gouda" 2
-PARTICIPANT 3 "bodegraven" 2
-PARTICIPANT 4 "waddinxveen" 3
-PARTICIPANT 5 "boskoop" 3
+PARTICIPANT 1 "gouda" 2
+PARTICIPANT 2 "alphen aan den rijn" 2
+PARTICIPANT 3 "waddinxveen" 3
+PARTICIPANT 4 "boskoop" 3
+PARTICIPANT 5 "f.c. dondersstraat, utrecht" 4
+PARTICIPANT 6 "delft" 4
+PARTICIPANT 7 "ree 10, reeuwijk" 1
+#PARTICIPANT 8 "schoonhoven" 1
 
 # DRIVERS - driver# - address
 DRIVER 1 "reeuwijk-dorp"
-DRIVER 2 "haastrecht"
-DRIVER 3 "zwammerdam"
-
+DRIVER 2 "zwammerdam"
+DRIVER 3 "haastrecht"
+DRIVER 4 "mijdrecht"
+#DRIVER 5 "uithoorn"
+#DRIVER 6 "ijsselstein"
+#DRIVER 7 "berkel en rodenrijs"
+#DRIVER 7 "blaarkopstraat, utrecht"
