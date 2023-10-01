@@ -6,6 +6,7 @@ from itertools import permutations
 import time
 import os
 import pickle
+import time 
 
 fname="input3.txt"
 
@@ -46,7 +47,10 @@ savefile = open(r'data.bin', 'wb')
 pickle.dump(cache_data, savefile)
 savefile.close()
 
+start_time = time.time()
 solutions = Solve_ASP(events_wp, participants_wp, participants_event, drivers_wp, wp2coord, coord2wp, all_coords, all_wp, allroutes)
+end_time = time.time()
+print('Execution time: ', end_time-start_time, 'seconds')
 
 routes={}
 for d, wp in drivers_wp.items():
