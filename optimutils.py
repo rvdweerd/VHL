@@ -33,8 +33,8 @@ def Solve_ASP(events_wp, participants_wp, participants_event, drivers_wp, wp2coo
     
     asp_program += """
 % GENERATE PICKUP(driverID, T, participantID)
-#const num_timesteps=4.
-timestep(1..4).
+#const num_timesteps=2.
+timestep(1..2).
 %1{ pickup(1..D, 1..T, 1..P) : driver(D), timestep(T), participant(P) }num_participants .%: driver(D).%, timestep(T).
 {pickup(D, T, P) : driver(D), timestep(T), participant(P)}.
 
@@ -55,7 +55,7 @@ timestep(1..4).
 
 % ALL PARTICIPANTS MUST BE PICKED UP
 picked_up(N) :- N = #count{ ID : pickup(_,_,ID) }.
-:- picked_up(N), N<num_participants.
+:- picked_up(N), N != num_participants.
 
 % EACH DRIVER CAN ONLY PICK UP A MAXIUM OF 3
 picked_up(D,N) :- N = #count{ ID : pickup(D,_,ID)}, driver(D).
